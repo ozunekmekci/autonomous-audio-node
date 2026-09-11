@@ -14,3 +14,5 @@ recordings/
 # Environment & credentials
 .env
 local_config.py
+config_local.py
+

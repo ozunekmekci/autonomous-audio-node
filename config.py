@@ -28,3 +28,13 @@ LOG_FILE = os.path.join(BASE_DIR, "vad.log")
 TELEGRAM_ENABLED = False
 TELEGRAM_BOT_TOKEN = ""     # @BotFather'dan alınan bot token
 TELEGRAM_CHAT_ID = ""       # Bildirimin gönderileceği Chat ID
+
+# Yerel özel ayarları (token vb.) config_local.py veya .env dosyasından yükle
+try:
+    import config_local
+    TELEGRAM_ENABLED = getattr(config_local, "TELEGRAM_ENABLED", TELEGRAM_ENABLED)
+    TELEGRAM_BOT_TOKEN = getattr(config_local, "TELEGRAM_BOT_TOKEN", TELEGRAM_BOT_TOKEN)
+    TELEGRAM_CHAT_ID = getattr(config_local, "TELEGRAM_CHAT_ID", TELEGRAM_CHAT_ID)
+except ImportError:
+    pass
+
