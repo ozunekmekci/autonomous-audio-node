@@ -13,6 +13,9 @@ sys.path.insert(0, PROJECT_ROOT)
 
 import config
 from core.network import get_local_ip, send_telegram_notification, start_mdns, stop_mdns, get_battery_info
+from core.edge_guard import EdgeGuard, mute_all_audio
+from core.bot_controller import BotController
+
 
 os.makedirs(config.RECORDINGS_DIR, exist_ok=True)
 os.makedirs(config.TEMP_DIR, exist_ok=True)
@@ -39,6 +42,7 @@ def start_vad_service():
         return True, "Dinleme zaten aktif."
     
     try:
+        mute_all_audio()
         subprocess.run(["termux-wake-lock"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run([
             "termux-notification", "--id", "vad-node",
@@ -353,12 +357,22 @@ def main():
         f"<i>Sistem hazır, dinlemeyi başlatmak için web paneline dokunabilirsiniz.</i>"
     )
 
+    # Edge Guard (Donanım, Isı, Güç ve Disk Nöbetçisi)
+    edge_guard = EdgeGuard(poll_interval=30)
+    edge_guard.start(is_vad_running, stop_vad_service, start_vad_service)
+
+    # Telegram Bot Kumandası (Çift Yönlü Uzaktan Kontrol)
+    bot_ctrl = BotController(start_vad_service, stop_vad_service, is_vad_running, is_mic_recording)
+    bot_ctrl.start()
+
     server = HTTPServer(("0.0.0.0", config.PORT), ControlHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        bot_ctrl.stop()
+        edge_guard.stop()
         stop_mdns()
         server.server_close()
 

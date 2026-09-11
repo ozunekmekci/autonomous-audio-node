@@ -146,6 +146,11 @@ def main():
                         sz = os.path.getsize(out_path)
                         dur = speech_end_sec - speech_start_sec
                         print(f"[✓] [{t_str}] KAYDEDİLDİ: {out_name} ({sz/1024:.1f} KB, {dur:.1f}s)\n")
+                        try:
+                            from core.dispatcher import dispatch_voice
+                            dispatch_voice(out_path)
+                        except Exception as e:
+                            print(f"[!] Dispatcher hatası: {e}")
                     else:
                         print(f"[!] [{t_str}] Blok çıkarılamadı!")
 
