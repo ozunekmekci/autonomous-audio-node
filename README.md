@@ -133,23 +133,28 @@ Bilgisayarınızda repo dizinindeyken:
 ./ear.sh status   # Canlı durumu ve son kayıtları gösterir
 ```
 
-### C) Telefonda Doğrudan Termux İçinden
-Termux uygulamasında şu kısa kelimeleri yazmanız yeterlidir:
-* `dinle` ➔ Dinlemeyi başlatır.
-* `dur` ➔ Mikrofonu donanımsal olarak kapatır.
-* `durum` ➔ Aktif olup olmadığını gösterir.
+### D) Telegram Üzerinden Uzaktan Kumanda (Dünyanın Her Yerinden)
+Telegram botunuz (@Kulak_znbot) üzerinden aynı Wi-Fi ağında olmasanız bile dokunmatik menüyle kontrol sağlayabilirsiniz:
+* **[▶ Dinlemeyi Başlat]:** Dinlemeyi açar ve cihazı tam sessizlik moduna alır.
+* **[⏹ Dinlemeyi Durdur]:** Mikrofonu donanımsal olarak kapatır.
+* **[📊 Canlı Durum / Pil]:** Anlık pil yüzdesi, şarj durumu, sıcaklık ve disk alanını raporlar.
+* **[🎙️ Son Kaydı Gönder]:** En son kaydedilen ses dosyasını sesli mesaj olarak sohbete gönderir.
 
 ---
 
-## 🛡️ Hata Toleransı & Dosya Güvenliği
+## 🛡️ Donanım Nöbetçisi (Edge Guard) & Güvenlik
 
 | Özellik | Nasıl Çalışır? | Ne Sağlar? |
 | :--- | :--- | :--- |
 | **Sıfır Kör Nokta** | 48 kHz sürekli Opus stream | Parçalı kayıtlar gibi kelime atlaması yapmaz. |
 | **Pre-Roll Koruması** | 1.0 sn geriden dilimleme | Cümlenin ilk harfi/hecesi asla kesilmez. |
+| **Tam Sessizlik Modu** | Zil, bildirim, sistem sesleri = 0 | Masada titreme veya bildirim sesiyle yalancı tetiklemeyi önler. |
+| **Şarj & Pil Koruyucu** | %10'da güvenli durdurma & standby | Cihazın aniden kapanmasını önler; prize takılınca mikrofon kapalı başlar. |
+| **Termal Koruma & Hafıza** | 43°C uyarı, 46°C durdurma, 38°C devam | Donanımı korur; soğuyunca kaldığı yerden otomatik dinlemeye devam eder. |
 | **Atomik Taşıma** | POSIX `os.replace` | Elektrik gitse bile asla yarım/bozuk 0 KB dosya oluşmaz. |
+| **Otomatik Ses Dağıtımı** | Telegram `sendVoice` kuyruğu | Konuşmaları anında telefonunuza sesli mesaj olarak iletir. |
 | **Çakışma Önleme** | Disk doğrulamalı ardışık numara | Aynı dakikada 100 kayıt gelse bile dosyalar birbirini ezmez. |
-| **Otomatik Temizlik** | 60 sn sessizlikte stream yenileme | Cihaz aylarca açık kalsa bile disk dolmaz. |
+
 
 ---
 
