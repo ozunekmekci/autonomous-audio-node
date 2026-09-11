@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Audio and temporary files
+*.m4a
+*.opus
+*.wav
+vad_temp/
+recordings/
+*.log
+
+# Environment & credentials
+.env
+local_config.py
