@@ -12,7 +12,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
 import config
-from core.network import get_local_ip, send_telegram_notification, start_mdns, stop_mdns
+from core.network import get_local_ip, send_telegram_notification, start_mdns, stop_mdns, get_battery_info
 
 os.makedirs(config.RECORDINGS_DIR, exist_ok=True)
 os.makedirs(config.TEMP_DIR, exist_ok=True)
@@ -57,10 +57,12 @@ def start_vad_service():
         
         # Opsiyonel Telegram bildirimi
         local_ip = get_local_ip()
+        battery = get_battery_info()
         send_telegram_notification(
-            f"🎙️ <b>Ortam Dinleme Düğümü Başlatıldı!</b>\n"
-            f"🟢 <b>Durum:</b> Aktif Dinlemede\n"
-            f"🌐 <b>Web Paneli:</b> http://{local_ip}:{config.PORT}/"
+            f"🎙️ <b>Ortam Dinleme Düğümü Başlatıldı!</b>\n\n"
+            f"🟢 <b>Durum:</b> Aktif Dinlemede (Mikrofon Açık)\n"
+            f"🌐 <b>Web Paneli:</b> http://{local_ip}:{config.PORT}/\n"
+            f"🔋 <b>Pil:</b> {battery}"
         )
         return True, "Dinleme başarıyla başlatıldı. Mikrofon aktif 🟢"
     except Exception as e:
@@ -341,6 +343,16 @@ def main():
     # mDNS yayını başlat (kulak.local)
     start_mdns(config.HOSTNAME, config.PORT)
     
+    # Telegram açılış bildirimi
+    battery = get_battery_info()
+    send_telegram_notification(
+        f"⚡ <b>Ortam Dinleme Düğümü Çevrimiçi!</b>\n\n"
+        f"🌐 <b>Web Paneli:</b> http://{ip}:{config.PORT}/\n"
+        f"🌐 <b>mDNS:</b> http://{config.HOSTNAME}:{config.PORT}/\n"
+        f"🔋 <b>Pil:</b> {battery}\n\n"
+        f"<i>Sistem hazır, dinlemeyi başlatmak için web paneline dokunabilirsiniz.</i>"
+    )
+
     server = HTTPServer(("0.0.0.0", config.PORT), ControlHandler)
     try:
         server.serve_forever()

@@ -35,6 +35,20 @@ def get_local_ip():
 
     return "127.0.0.1"
 
+def get_battery_info():
+    """Cihazın pil yüzdesi ve şarj durumunu tespit eder."""
+    try:
+        res = subprocess.run(["termux-battery-status"], capture_output=True, text=True, timeout=2)
+        data = json.loads(res.stdout)
+        pct = data.get("percentage", "?")
+        status = data.get("status", "")
+        plugged = data.get("plugged", "")
+        is_charging = "CHARGING" in status or "PLUGGED" in plugged
+        icon = "⚡" if is_charging else "🔋"
+        return f"{icon} %{pct} ({'Şarjda' if is_charging else 'Pilde'})"
+    except Exception:
+        return "🔋 Bilinmiyor"
+
 def send_telegram_notification(message):
     """Yapılandırılmışsa Telegram botu üzerinden yeni IP'yi gönderir."""
     if not getattr(config, "TELEGRAM_ENABLED", False):
