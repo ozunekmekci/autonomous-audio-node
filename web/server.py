@@ -12,7 +12,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
 import config
-from core.network import get_local_ip, send_telegram_notification
+from core.network import get_local_ip, send_telegram_notification, start_mdns, stop_mdns
 
 os.makedirs(config.RECORDINGS_DIR, exist_ok=True)
 os.makedirs(config.TEMP_DIR, exist_ok=True)
@@ -338,12 +338,16 @@ def main():
     print(f"    --> Yerel Ağ Bağlantısı: http://{ip}:{config.PORT}/")
     print(f"    --> mDNS Bağlantısı: http://{config.HOSTNAME}:{config.PORT}/")
     
+    # mDNS yayını başlat (kulak.local)
+    start_mdns(config.HOSTNAME, config.PORT)
+    
     server = HTTPServer(("0.0.0.0", config.PORT), ControlHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        stop_mdns()
         server.server_close()
 
 if __name__ == "__main__":

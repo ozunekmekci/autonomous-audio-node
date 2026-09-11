@@ -54,6 +54,68 @@ def send_telegram_notification(message):
         print(f"[!] Telegram bildirim hatası: {e}")
         return False
 
+_zeroconf_instance = None
+_service_info = None
+
+def start_mdns(hostname=None, port=None):
+    """Yerel ağda mDNS (kulak.local) anonsu başlatır."""
+    global _zeroconf_instance, _service_info
+    if hostname is None:
+        hostname = getattr(config, "HOSTNAME", "kulak.local")
+    if port is None:
+        port = getattr(config, "PORT", 8080)
+
+    ip = get_local_ip()
+    if ip == "127.0.0.1":
+        return False
+
+    try:
+        from zeroconf import Zeroconf, ServiceInfo, IPVersion
+        if _zeroconf_instance is not None:
+            stop_mdns()
+
+        desc = {"path": "/", "app": "autonomous-audio-node"}
+        server_name = hostname if hostname.endswith(".") else f"{hostname}."
+        
+        _service_info = ServiceInfo(
+            "_http._tcp.local.",
+            f"Autonomous Audio Node._http._tcp.local.",
+            addresses=[socket.inet_aton(ip)],
+            port=port,
+            properties=desc,
+            server=server_name,
+        )
+        _zeroconf_instance = Zeroconf(ip_version=IPVersion.V4Only)
+        _zeroconf_instance.register_service(_service_info)
+        print(f"[*] mDNS yayını aktif: http://{hostname}:{port}/ -> {ip}")
+        return True
+    except ImportError:
+        print("[!] zeroconf paketi bulunamadı (mDNS pasif). 'pip install zeroconf' ile kurabilirsiniz.")
+        return False
+    except Exception as e:
+        print(f"[!] mDNS başlatma hatası: {e}")
+        return False
+
+def stop_mdns():
+    """mDNS servisini temiz şekilde sonlandırır."""
+    global _zeroconf_instance, _service_info
+    try:
+        if _zeroconf_instance and _service_info:
+            _zeroconf_instance.unregister_service(_service_info)
+            _zeroconf_instance.close()
+            _zeroconf_instance = None
+            _service_info = None
+            print("[*] mDNS yayını durduruldu.")
+    except Exception as e:
+        print(f"[!] mDNS durdurma hatası: {e}")
+
 if __name__ == "__main__":
     ip = get_local_ip()
     print(f"Tespit Edilen Yerel IP: {ip}")
+    start_mdns()
+    import time
+    try:
+        time.sleep(5)
+    finally:
+        stop_mdns()
+

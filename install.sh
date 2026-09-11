@@ -14,7 +14,9 @@ echo ""
 # 1. Gerekli Paketlerin Kurulumu
 echo "[1/5] Paket havuzu güncelleniyor ve bağımlılıklar kuruluyor..."
 pkg update -y
-pkg install -y python ffmpeg termux-api git
+pkg install -y python ffmpeg termux-api git clang
+pip install zeroconf || echo "[!] zeroconf kurulamadı, mDNS devre dışı kalabilir fakat sistem çalışmaya devam edecektir."
+
 
 # 2. İzinler ve Güç Yönetimi
 echo "[2/5] Android arka plan güç kilidi (Wake-Lock) aktif ediliyor..."
